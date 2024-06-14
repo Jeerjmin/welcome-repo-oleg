@@ -1,163 +1,124 @@
 
+# File: retail_company.model.lkml
 
-# distribution_centers.view.lkml
-view: distribution_centers {
-  dimension: id {
-    primary_key: yes
-    type: number
-    sql: ${TABLE}.id ;;
+connection: "retail_db"
+
+# Explore for Orders
+explore: orders {
+  from: orders
+  join: order_items {
+    type: left_outer
+    sql_on: ${orders.id} = ${order_items.order_id} ;;
+    relationship: one_to_many
   }
-  dimension: country {
-    type: string
-    sql: ${TABLE}.country ;;
-  }
-  dimension: state {
-    type: string
-    sql: ${TABLE}.state ;;
-  }
-  dimension: town {
-    type: string
-    sql: ${TABLE}.town ;;
-  }
-  dimension: street {
-    type: string
-    sql: ${TABLE}.street ;;
-  }
-  dimension: building {
-    type: string
-    sql: ${TABLE}.building ;;
-  }
-  dimension: name {
-    type: string
-    sql: ${TABLE}.name ;;
-  }
-  measure: count {
-    type: count
-    drill_fields: [id, name, products.count]
+  join: users {
+    type: left_outer
+    sql_on: ${orders.user_id} = ${users.id} ;;
+    relationship: many_to_one
   }
 }
 
-
-# products.view.lkml
-view: products {
-  dimension: id {
-    primary_key: yes
-    type: number
-    sql: ${TABLE}.id ;;
+# Explore for Order Items
+explore: order_items {
+  from: order_items
+  join: orders {
+    type: left_outer
+    sql_on: ${order_items.order_id} = ${orders.id} ;;
+    relationship: many_to_one
   }
-  dimension: name {
-    type: string
-    sql: ${TABLE}.name ;;
+  join: products {
+    type: left_outer
+    sql_on: ${order_items.inventory_item_id} = ${inventory_items.id} AND ${inventory_items.product_id} = ${products.id} ;;
+    relationship: many_to_one
   }
-  dimension: department {
-    type: string
-    sql: ${TABLE}.department ;;
-  }
-  # ... other product dimensions ...
-  measure: count {
-    type: count
-    drill_fields: [id, name, distribution_centers.id, distribution_centers.name, inventory_items.count]
+  join: distribution_centers {
+    type: left_outer
+    sql_on: ${inventory_items.distribution_center_id} = ${distribution_centers.id} ;;
+    relationship: many_to_one
   }
 }
 
-
-# users.view.lkml
-view: users {
-  dimension: id {
-    primary_key: yes
-    type: number
-    sql: ${TABLE}.id ;;
-  }
-  dimension: age {
-    type: number
-    sql: ${TABLE}.age ;;
-  }
-  dimension: city {
-    type: string
-    sql: ${TABLE}.city ;;
-  }
-  # ... other user dimensions ...
-  measure: count {
-    type: count
-    drill_fields: [id, first_name, last_name, order_items.count]
+# Explore for Products
+explore: products {
+  from: products
+  join: inventory_items {
+    type: left_outer
+    sql_on: ${products.id} = ${inventory_items.product_id} ;;
+    relationship: one_to_many
   }
 }
 
-
-# orders.view.lkml
-view: orders {
-  dimension: id {
-    primary_key: yes
-    type: number
-    sql: ${TABLE}.id ;;
+# Explore for Users
+explore: users {
+  from: users
+  join: orders {
+    type: left_outer
+    sql_on: ${users.id} = ${orders.user_id} ;;
+    relationship: one_to_many
   }
-  dimension: status {
-    type: string
-    sql: ${TABLE}.status ;;
-  }
-  # ... other order dimensions ...
-  measure: count {
-    type: count
+  join: user_order_facts {
+    type: left_outer
+    sql_on: ${users.id} = ${user_order_facts.user_id} ;;
+    relationship: one_to_one
   }
 }
 
-
-# order_items.view.lkml
-view: order_items {
-  dimension: id {
-    primary_key: yes
-    type: number
-    sql: ${TABLE}.id ;;
-  }
-  dimension: inventory_item_id {
-    type: number
-    sql: ${TABLE}.inventory_item_id ;;
-  }
-  dimension: order_id {
-    type: number
-    sql: ${TABLE}.order_id ;;
-  }
-  # ... other order item dimensions ...
-  measure: count {
-    type: count
-    drill_fields: [detail*]
+# Explore for Distribution Centers
+explore: distribution_centers {
+  from: distribution_centers
+  join: inventory_items {
+    type: left_outer
+    sql_on: ${distribution_centers.id} = ${inventory_items.distribution_center_id} ;;
+    relationship: one_to_many
   }
 }
 
-
-# inventory_items.view.lkml
-view: inventory_items {
-  dimension: id {
-    primary_key: yes
-    type: number
-    sql: ${TABLE}.id ;;
+# Explore for Inventory Items
+explore: inventory_items {
+  from: inventory_items
+  join: products {
+    type: left_outer
+    sql_on: ${inventory_items.product_id} = ${products.id} ;;
+    relationship: many_to_one
   }
-  dimension: product_id {
-    type: number
-    sql: ${TABLE}.product_id ;;
-  }
-  dimension: quantity {
-    type: number
-    sql: ${TABLE}.quantity ;;
-  }
-  # ... other inventory item dimensions ...
-  measure: count {
-    type: count
-    drill_fields: [id, products.id, products.name, order_items.count]
+  join: distribution_centers {
+    type: left_outer
+    sql_on: ${inventory_items.distribution_center_id} = ${distribution_centers.id} ;;
+    relationship: many_to_one
   }
 }
 
-
-# user_order_facts.view.lkml
-view: user_order_facts {
-  dimension: first_order_date {
-    type: date
-    sql: ${TABLE}.first_order_date ;;
+# Wide Table Explore
+explore: wide_table {
+  from: orders
+  join: order_items {
+    type: left_outer
+    sql_on: ${orders.id} = ${order_items.order_id} ;;
+    relationship: one_to_many
   }
-  dimension: total_orders {
-    type: number
-    sql: ${TABLE}.total_orders ;;
+  join: users {
+    type: left_outer
+    sql_on: ${orders.user_id} = ${users.id} ;;
+    relationship: many_to_one
   }
-  # ... other user order facts dimensions ...
+  join: products {
+    type: left_outer
+    sql_on: ${order_items.inventory_item_id} = ${inventory_items.id} AND ${inventory_items.product_id} = ${products.id} ;;
+    relationship: many_to_one
+  }
+  join: distribution_centers {
+    type: left_outer
+    sql_on: ${inventory_items.distribution_center_id} = ${distribution_centers.id} ;;
+    relationship: many_to_one
+  }
+  join: inventory_items {
+    type: left_outer
+    sql_on: ${order_items.inventory_item_id} = ${inventory_items.id} ;;
+    relationship: many_to_one
+  }
+  join: user_order_facts {
+    type: left_outer
+    sql_on: ${users.id} = ${user_order_facts.user_id} ;;
+    relationship: one_to_one
+  }
 }
-
