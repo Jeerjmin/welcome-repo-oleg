@@ -1,1 +1,1 @@
-Error: Unexpected end of JSON input
+Error: Couldn't find the project to generate code for
