@@ -1,35 +1,28 @@
 
-# File: retail_explore.model.lkml
-explore: order_items {
-  join: products {
+explore: products {
+  join: inventory_items {
     type: left_outer
-    sql_on: ${order_items.inventory_item_id} = ${products.id} ;;
-    relationship: many_to_one
+    sql_on: ${products.id} = ${inventory_items.product_id} ;;
   }
-
-  join: orders {
+  
+  join: order_items {
     type: left_outer
-    sql_on: ${order_items.order_id} = ${orders.id} ;;
     relationship: many_to_one
+    sql_on: ${inventory_items.id} = ${order_items.inventory_item_id} ;;
   }
 }
 
-# File: total_sales_by_category.view.lkml
-view: total_sales_by_category {
-  derived_table: {
-    explore_source: order_items {
-      column: products.category
-      column: order_items.total_sales
-    }
+explore: users {
+  join: orders {
+    type: left_outer
+    relationship: one_to_many
+    sql_on: ${users.id} = ${orders.user_id} ;;
   }
+}
 
-  dimension: category {
-    type: string
-    sql: ${TABLE}.category ;;
-  }
-
-  measure: total_sales {
-    type: sum
-    sql: ${TABLE}.total_sales ;;
+explore: distribution_centers {
+  join: inventory_items {
+    type: left_outer
+    sql_on: ${distribution_centers.id} = ${inventory_items.distribution_center_id} ;;
   }
 }
