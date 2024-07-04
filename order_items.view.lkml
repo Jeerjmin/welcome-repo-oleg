@@ -1,4 +1,5 @@
 
+<<<<<<< HEAD
 # products.view.lkml
 measure: count {
   type: count
@@ -21,6 +22,12 @@ measure: count {
 measure: count {
   type: count
   drill_fields: [id, distribution_center_id, product_id, cost, quantity, products.id, products.name, products.category, products.subcategory, products.brand, user_order_facts.total_orders, user_order_facts.total_spent]
+=======
+# users.view.lkml
+measure: user_count {
+  type: count
+  sql: ${TABLE}.id ;; # Assuming id is the unique user identifier
+>>>>>>> refs/remotes/origin/main
 }
 
 # user_order_facts.view.lkml

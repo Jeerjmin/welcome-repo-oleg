@@ -1,5 +1,10 @@
 SELECT
   COUNT(*)
-FROM orders
-WHERE
-  created_at > DATE_ADD(CURDATE(), INTERVAL -30 day)
+FROM (
+  SELECT
+    author,
+    COUNT(*) AS num_stories
+  FROM hackernews.stories
+  GROUP BY
+    author
+)

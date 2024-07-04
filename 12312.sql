@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 -- File: cltv_calculation.sql
 -- This SQL script calculates the Customer Lifetime Value (CLTV) for each customer.
@@ -34,3 +35,16 @@ FROM
     total_revenue_per_customer tr
 JOIN 
     customer_lifespan cl ON tr.user_id = cl.user_id;
+=======
+SELECT
+  *
+FROM (
+  SELECT
+    author,
+    COUNT(*) AS num_stories
+  FROM hackernews.stories
+  GROUP BY author
+  ORDER BY num_stories DESC
+  LIMIT 10
+)
+>>>>>>> refs/remotes/origin/main
