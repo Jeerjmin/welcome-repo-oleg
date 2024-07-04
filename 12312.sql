@@ -1,24 +1,36 @@
-WITH customer_ltv AS (
-      SELECT
+
+-- File: cltv_calculation.sql
+-- This SQL script calculates the Customer Lifetime Value (CLTV) for each customer.
+
+-- Step 1: Calculate Total Revenue per Customer
+WITH total_revenue_per_customer AS (
+    SELECT 
+        o.user_id,
+        SUM(oi.sale_price * oi.sale_quantity) AS total_revenue
+    FROM 
+        public.orders o
+    JOIN 
+        public.order_items oi ON o.id = oi.order_id
+    GROUP BY 
+        o.user_id
+),
+
+-- Step 2: Calculate Customer Lifespan
+customer_lifespan AS (
+    SELECT 
         user_id,
-        SUM(sale_price) AS total_revenue,
-        SUM(sale_price * 0.5) AS total_cost
-      FROM orders
-      GROUP BY 1
-    )
-    SELECT
-      u.id AS user_id,
-      u.first_name,
-      u.last_name,
-      u.email,
-      u.created_at AS user_created_at,
-      SUM(oi.sale_price) AS total_revenue,
-      SUM(oi.sale_price * 0.5) AS total_cost,
-      SUM(oi.sale_price) - SUM(oi.sale_price * 0.5) AS total_profit,
-      SUM(oi.sale_price) - SUM(oi.sale_price * 0.5) - SUM(oi.sale_price * 0.1) AS total_profit_after_ad_costs
-    FROM users u
-    JOIN orders o ON u.id = o.user_id
-    JOIN order_items oi ON o.id = oi.order_id
-    JOIN customer_ltv cl ON u.id = cl.user_id
-    GROUP BY 1, 2, 3, 4, 5
-    ORDER BY 6 DESC
+        DATEDIFF(day, MIN(created_at), MAX(created_at)) AS customer_lifespan
+    FROM 
+        public.orders
+    GROUP BY 
+        user_id
+)
+
+-- Step 3: Combine to Calculate CLTV
+SELECT 
+    tr.user_id,
+    tr.total_revenue / cl.customer_lifespan AS cltv
+FROM 
+    total_revenue_per_customer tr
+JOIN 
+    customer_lifespan cl ON tr.user_id = cl.user_id;

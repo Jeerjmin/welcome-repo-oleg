@@ -1,132 +1,27 @@
-view: order_items {
-  sql_table_name: public.order_items ;;
 
-  dimension: id {
-    primary_key: yes
-    type: number
-    sql: ${TABLE}.id ;;
-  }
-
-  dimension: inventory_item_id {
-    type: number
-    sql: ${TABLE}.inventory_item_id ;;
-  }
-
-  dimension: order_id {
-    type: number
-    sql: ${TABLE}.order_id ;;
-  }
-
-  dimension_group: created {
-    type: time
-    timeframes: [
-      raw,
-      time,
-      date,
-      week,
-      month,
-      quarter,
-      year
-    ]
-    sql: ${TABLE}.created_at ;;
-  }
-
-  dimension_group: delivered {
-    type: time
-    timeframes: [
-      raw,
-      time,
-      date,
-      week,
-      month,
-      quarter,
-      year
-    ]
-    sql: ${TABLE}.delivered_at ;;
-  }
-
-  dimension_group: returned {
-    type: time
-    timeframes: [
-      raw,
-      time,
-      date,
-      week,
-      month,
-      quarter,
-      year
-    ]
-    sql: ${TABLE}.returned_at ;;
-  }
-
-  dimension_group: shipped {
-    type: time
-    timeframes: [
-      raw,
-      time,
-      date,
-      week,
-      month,
-      quarter,
-      year
-    ]
-    sql: ${TABLE}.shipped_at ;;
-  }
-
-  dimension_group: Quarterly_Result {
-    type: duration
-    intervals: [month]
-    sql_start: ${created::date} ;;
-    sql_end: CURRENT_TIMESTAMP() ;;
-  }
-
-  dimension: status {
-    type: string
-    sql: ${TABLE}.status ;;
-  }
-
-  dimension: sale_price {
-    type: number
-    sql: ${TABLE}.sale_price ;;
-  }
-
-  dimension: sale_quantity {
-    type: number
-    sql: ${TABLE}.sale_quantity ;;
-  }
-
-  dimension: price_range {
-    case: {
-      when: {
-        sql: ${sale_price} < 100 ;;
-        label: "Inexpensive"
-      }
-      when: {
-        sql: ${sale_price} >= 100 AND ${sale_price} < 500 ;;
-        label: "Normal"
-      }
-      when: {
-        sql: ${sale_price} >= 500 ;;
-        label: "Expensive"
-      }
-      else: "Unknown"
-    }
-  }
-
-  measure: count {
-    type: count
-    drill_fields: [detail*]
-  }
-
-  # ----- Sets of fields for drilling ------
-  set: detail {
-    fields: [
-      id,
-      users.id,
-      users.first_name,
-      users.last_name,
-      inventory_items.id,
-      products.name
-    ]
-  }
+# products.view.lkml
+measure: count {
+  type: count
+  drill_fields: [id, name, department, category, subcategory, brand, size, weight, color, material, sku, user_order_facts.total_orders, user_order_facts.total_spent]
 }
+
+# users.view.lkml
+measure: count {
+  type: count
+  drill_fields: [id, age, city, country, email, first_name, gender, last_name, latitude, longitude, state, traffic_source, orders.id, orders.status, orders.is_complete, user_order_facts.total_orders, user_order_facts.total_spent]
+}
+
+# orders.view.lkml
+measure: count {
+  type: count
+  drill_fields: [id, user_id, status, is_complete, products.id, products.name, products.category, products.subcategory, products.brand, user_order_facts.total_orders, user_order_facts.total_spent]
+}
+
+# inventory_items.view.lkml
+measure: count {
+  type: count
+  drill_fields: [id, distribution_center_id, product_id, cost, quantity, products.id, products.name, products.category, products.subcategory, products.brand, user_order_facts.total_orders, user_order_facts.total_spent]
+}
+
+# user_order_facts.view.lkml
+# Assuming there is no need to add the count measure here, as it would be redundant with the total_orders measure.
