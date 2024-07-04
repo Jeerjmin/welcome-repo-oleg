@@ -1,7 +1,8 @@
 
 # users.view.lkml
 
-measure: count {
+measure: user_count {
   type: count
-  drill_fields: [id, first_name, last_name, order_items.count]
+  sql: ${TABLE}.id ;; # Using ${TABLE}.id ensures that the count is based on unique user IDs.
+  description: "Total number of users."
 }
