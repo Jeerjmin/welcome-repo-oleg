@@ -1,3 +1,5 @@
-
-SELECT id, first_name, last_name, email, country
-FROM users;
+SELECT
+  COUNT(*)
+FROM users
+GROUP BY
+  age
