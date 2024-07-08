@@ -1,0 +1,5 @@
+SELECT
+  COUNT(*)
+FROM users
+GROUP BY
+  age
