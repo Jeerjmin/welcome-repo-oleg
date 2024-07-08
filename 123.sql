@@ -1,3 +1,11 @@
-
-SELECT id, first_name, last_name, email, country
-FROM users;
+SELECT
+  *
+FROM users
+WHERE
+  country = 'USA'
+UNION ALL
+SELECT
+  *
+FROM users
+WHERE
+  country = 'Canada'
