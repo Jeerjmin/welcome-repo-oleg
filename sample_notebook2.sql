@@ -1,10 +1,11 @@
 SELECT
   COUNT(*)
-FROM (
-  SELECT
-    author,
-    COUNT(*) AS num_stories
-  FROM hackernews.stories
-  GROUP BY
-    author
-)
+FROM public.orders
+WHERE EXTRACT(YEAR FROM created_at) = 2024
+  AND EXTRACT(MONTH FROM created_at) = 2
+UNION ALL
+SELECT
+  COUNT(*)
+FROM public.orders
+WHERE EXTRACT(YEAR FROM created_at) = 2023
+  AND EXTRACT(MONTH FROM created_at) = 2
